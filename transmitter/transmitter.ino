@@ -1,6 +1,5 @@
 #include "FlexCAN.h"
 #include "kinetis_flexcan.h"
-// hello
 int led = 13;
 // create CAN object
 FlexCAN CANTransmitter(16000000/100000);
@@ -23,8 +22,8 @@ void loop() {
   msg.len = 2;
   msg.ext = 0;
   for(int i=0; i<msg.len; i++) {
-    msg.buf[i] = 0;
-    //Serial.print(msg.buf[i]); Serial.print(" ");
+    msg.buf[i] = 99;
+    Serial.print(msg.buf[i]); Serial.print(" ");
   }
   Serial.println("");
   // stops when no buffer can be found

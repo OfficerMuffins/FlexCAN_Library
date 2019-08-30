@@ -401,6 +401,7 @@ typedef volatile uint32_t vuint32_t;
 #define CAN_ERROR_ACTIVE				0
 #define CAN_ERROR_PASSIVE				1
 #define CAN_ERROR_BUS_OFF				2
+#define FLEXCAN_ESR_SYNC               (0x00040000) // added to poll for sync
 
 /* Bit definition for FLEXCAN_ESR2 */
 #define FLEXCAN_ESR2_IMB            	(0x00002000)

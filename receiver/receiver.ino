@@ -55,14 +55,15 @@ void setup() {
 }
 
 void loop() {
-  Serial.println("Polling");
+  CANReceiver.poll();
 #if CAN_TEST == 0
 #else
-  if(CANReceiver.available())
-    Serial.println("Found a frame");
   /*
+  if(CANReceiver.available()) {
+    Serial.println("Found a frame");
+    while(1);
+  }*/
   while(CANReceiver.read(msg)) {
-    break;
     // toggle LEDs
     digitalWrite(led, !digitalRead(led));
     Serial.print("Receiving: ");
@@ -70,8 +71,8 @@ void loop() {
       Serial.print(msg.buf[i]); Serial.print(" ");
     }
     Serial.println("");
-  }*/
-  Serial.print(digitalRead(24)); //Serial.println(digitalRead(25));
+  }
+  //Serial.print(digitalRead(24)); Serial.println(digitalRead(25));
 #endif
-  delay(100);
+  delay(2000);
 }

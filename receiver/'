@@ -74,7 +74,6 @@ FlexCAN::FlexCAN(uint32_t baud, uint8_t id, uint8_t txAlt, uint8_t rxAlt)
   // wait for freeze ack
   while(!(FLEXCANb_MCR(flexcanBase) & FLEXCAN_MCR_FRZ_ACK))
     ;
-
   // disable self-reception
   FLEXCANb_MCR(flexcanBase) |= FLEXCAN_MCR_SRX_DIS;
 
@@ -83,8 +82,6 @@ FlexCAN::FlexCAN(uint32_t baud, uint8_t id, uint8_t txAlt, uint8_t rxAlt)
 
   //in FIFO, set this mask to allow for BUF5 interrupts
   FLEXCAN0_IMASK1 |= FLEXCAN_IMASK1_BUF5M;
-  FLEXCAN0_IMASK1 |= FLEXCAN_IMASK1_BUF6M;
-  FLEXCAN0_IMASK1 |= FLEXCAN_IMASK1_BUF7M;
 
   // segment splits and clock divisor based on baud rate
     if ( 50000 == baud ) {
@@ -168,6 +165,7 @@ void FlexCAN::setFilter(const CAN_filter_t &filter, uint8_t n)
 int FlexCAN::available(void)
 {
   //In FIFO mode, the following interrupt flag signals availability of a frame
+  Serial.println(FLEXCAN0_ESR1 & FLEXCAN_ESR_RX); // 0 if not receiving message
   return (FLEXCANb_IFLAG1(flexcanBase) & FLEXCAN_IMASK1_BUF5M)? 1:0;
 }
 
@@ -278,7 +276,7 @@ int FlexCAN::write(const CAN_message_t &msg)
 void FlexCAN::clearMBs(uint8_t ToR)
 {
   ToR = ToR ? FLEXCAN_MB_CODE_TX_INACTIVE : FLEXCAN_MB_CODE_RX_INACTIVE;
-  for (uint8_t buff = rxb; buff < 16; buff++) {
+  for (uint8_t buff = rxb; i < 16; i++) {
     FLEXCANb_MBn_CS(flexcanBase, buff) |= ~FLEXCAN_MB_CS_CODE_MASK
       | FLEXCAN_MB_CS_CODE(ToR); // don't clear other bits
   }
@@ -289,25 +287,12 @@ void FlexCAN::clearMBs(uint8_t ToR)
  */
 void FlexCAN::poll()
 {
-  Serial.println("Polling");
-  if (!(FLEXCAN0_ESR1 & FLEXCAN_ESR_SYNC)) // check  if CAN in sync
+  if (!(FEXCAN0_ESR1 & FLEXCAN_ESR_SYNC))
     Serial.println("CAN module not in sync");
 
-  if (!(FLEXCANb_MCR(flexcanBase) & FLEXCAN_MCR_FEN)) // true if FIFO not enabled
-    Serial.println("FIFO not enabled");
-
-  if (FLEXCAN0_ESR1 & FLEXCAN_ESR_RX) // true if receiving frames
+  if (FLEXCAN0_ESR1 & FLEXCAN_ESR_RX)
     Serial.println("RX receiving frame");
 
-  if (FLEXCAN0_ESR1 & FLEXCAN_ESR_TX) // true if transmitting
-    Serial.println("TX transmitting frame");
-
-  if (!(FLEXCAN0_IMASK1 & FLEXCAN_IMASK1_BUF5M)) // if FIFO int 5 disabled
-    Serial.println("BUF5 MASK not set");
-
-  if (!(FLEXCAN0_IMASK1 & FLEXCAN_IMASK1_BUF6M)) // if FIFO int 6 disabled
-    Serial.println("BUF6 MASK not set");
-
-  if (!(FLEXCAN0_IMASK1 & FLEXCAN_IMASK1_BUF7M)) // if FIFO int 7 disabled
-    Serial.println("BUF7 MASK not set");
+  if (FLEXCAN0_ESR1 & FLEXCAN_ESR_RX)
+    Serial.println("TX receiving frame");
 }

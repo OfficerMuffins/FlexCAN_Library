@@ -8,6 +8,9 @@
 
 #include <Arduino.h>
 
+#define TX 1
+#define RX 0
+
 typedef struct CAN_message_t {
   uint32_t id; // can identifier
   uint8_t ext; // identifier is extended
@@ -41,7 +44,8 @@ public:
   int available(void);
   int write(const CAN_message_t &msg);
   int read(CAN_message_t &msg);
-
+  void clearMBs(uint8_t ToR);
+  void poll();
 };
 
 #endif // __FLEXCAN_H__
